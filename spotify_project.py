@@ -66,14 +66,20 @@ def songs(albums=albums()):
         songs[track] = song_list
     return songs
 
-
-print(songs())
 def find_song_id(songs=songs()):
+    new_songs = songs
     for artist in songs:
         for song in range(len(songs[artist])):
             for track in songs[artist][song]:
                 search = user_spotify.search(q='track:' + songs[artist][song][track], type='track')
-                print(search['tracks'])
+                print(search)
+                #! FIXXX
+                for num in range(len(search['tracks']['items'])):
+                    artist_name = search['tracks']['items'][num]['artists'][0]['name']
+                    album_name = search['tracks']['items'][num]['album']['name']
+                    if artist_name == songs[artist] and album_name == songs[artist][song]:
+                        new_songs[artist][song] = search['tracks']['items'][num]['id']
+    return new_songs
 
 def top5(songs=songs()):
     for artist in songs:
@@ -83,10 +89,11 @@ def top5(songs=songs()):
                 print(search['tracks'])
 
 #print(find_song_id())
-
-#print(songs()['Travis Scott'][0]['UTOPIA'])
-#search = user_spotify.search(q='track:' + songs()['Travis Scott'][0]['UTOPIA'], type='track')
-#print(search['tracks']['items'][0]['album'])
+#results = user_spotify.search(q='track:' + songs()['Travis Scott'][0]['UTOPIA'], type='track')
+#print(len(results['tracks']))
+#print(results['tracks']['items'][0]['artists'][0]['name'])
+#print(results['tracks']['items'][0]['id'])
+#print(results['tracks']['items'][0]['album']['name'])
 
 #* 1. Find the song id for each spotify track from the album through search and make sure the artist and album are the same
 #* 2. Find the top5 songs that would fit based on the valence, energy, danceability through the process below (absolute value of each variable and add together)
@@ -99,9 +106,6 @@ def top5(songs=songs()):
 
 # absoulte value of valence - valence, energy - energy, danceability - danceability
 # add these three together and the lowest value would mean the best song
-
-#print(artists())
-
 
 #? Take the albums made by the artists and check all of the songs in the albums to see if they will fit the requirement
 #? if songs fit in the second function

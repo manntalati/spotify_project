@@ -1,10 +1,17 @@
-SPOTIPY_CLIENT_ID = [hidden]
-SPOTIPY_CLIENT_SECRET = [hidden]
+SPOTIPY_CLIENT_ID = '482ddfd255024d6ea41fd723acf0f6be'
+SPOTIPY_CLIENT_SECRET = '47dee8b88d2c42af93fb03a03f82193d'
 SPOTIPY_URI = 'http://localhost:3000/callback'
 
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import helper
+import gui
+
+#* SPOTIFY_PROJECT TASKS
+#TODO: 2. Find the top5 songs that would fit based on the valence, energy, danceability through the process below (absolute value of each variable and add together)
+#* 3. ^^also incorporate margin of error
+#* 5. this should help spit back out 5 songs that give song, artist, and album
+#* 6. when recommending songs make sure to ensure that the same one isnt already there (in the set)
 
 scope = "user-top-read"
 
@@ -12,12 +19,15 @@ user_spotify = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=SPOTIPY_CLIEN
 
 current_user_top_artists = user_spotify.current_user_top_artists(limit=20, offset=0)
 
+#user_genre = page.user_genre
+#user_mood = page.user_mood
+
 user_genre = input("What genre would you like to listen to? ")
 user_mood = input("What mood would you like to listen to? ")
 
-valence=helper.user_valence(user_mood)
-danceability=helper.user_danceability(user_mood)
-energy=helper.user_energy(user_mood)
+user_valence = helper.user_valence(user_mood)
+user_danceability = helper.user_danceability(user_mood)
+user_energy = helper.user_energy(user_mood)
 
 def find_top_artists():
     top_artists = {}
@@ -52,7 +62,6 @@ def songs(albums=albums()):
     songs = {}
     for track in albums:
         song_list = []
-        name_list = []
         for album in range(len(albums[track])):
             search = user_spotify.search(q='album:' + albums[track][album], type='album')
             album_id = search['albums']['items'][0]['id']
@@ -62,52 +71,49 @@ def songs(albums=albums()):
                 specifics = {}
                 specifics[albums[track][album]] = album_tracks['items'][song]['name']
                 song_list.append(specifics)
-                name_list.append(track)
         songs[track] = song_list
     return songs
 
 def find_song_id(songs=songs()):
-    new_songs = songs
+    new_songs = {}
     for artist in songs:
+        id_list = []
         for song in range(len(songs[artist])):
             for track in songs[artist][song]:
                 search = user_spotify.search(q='track:' + songs[artist][song][track], type='track')
-                print(search)
-                #! FIXXX
                 for num in range(len(search['tracks']['items'])):
+                    dict2 = {}
                     artist_name = search['tracks']['items'][num]['artists'][0]['name']
                     album_name = search['tracks']['items'][num]['album']['name']
-                    if artist_name == songs[artist] and album_name == songs[artist][song]:
-                        new_songs[artist][song] = search['tracks']['items'][num]['id']
+                    if artist_name == artist and album_name == track:
+                        dict2[album_name] = search['tracks']['items'][num]['id']
+                        id_list.append(dict2)
+        new_songs[artist] = id_list
     return new_songs
 
-def top5(songs=songs()):
+def top5(songs=find_song_id()):
+    top5_songs = set()
     for artist in songs:
         for song in range(len(songs[artist])):
-            for track in songs[artist][song]:
-                search = user_spotify.search(q='track:' + songs[artist][song][track], type='track')
+            for id in songs[artist][song]:
+                search = user_spotify.search(q='track:' + songs[artist][song], type='track')
                 print(search['tracks'])
 
 #print(find_song_id())
-#results = user_spotify.search(q='track:' + songs()['Travis Scott'][0]['UTOPIA'], type='track')
+print(user_spotify.audio_features(find_song_id()['Travis Scott'][0]))
+results = user_spotify.search(q='track:' + songs()['Travis Scott'][0]['UTOPIA'], type='track')
 #print(len(results['tracks']))
-#print(results['tracks']['items'][0]['artists'][0]['name'])
-#print(results['tracks']['items'][0]['id'])
+#print(results['tracks']['items'][0])
+print(results['tracks']['items'][0]['id'])
+print(user_spotify.audio_features(results['tracks']['items'][0]['id']))
 #print(results['tracks']['items'][0]['album']['name'])
 
-#* 1. Find the song id for each spotify track from the album through search and make sure the artist and album are the same
-#* 2. Find the top5 songs that would fit based on the valence, energy, danceability through the process below (absolute value of each variable and add together)
-#* 3. ^^also incorporate margin of error
-#* 4. Make tkinter screen with buttons that would corespond to each item (mood should be selected based on buttons same with genre)
-#* 5. this should help spit back out 5 songs that give song, artist, and album
-
-#print(search)
 #? use margin of error to find value and then find the top 5 values that would fit best either through iterating a list or something
 
 # absoulte value of valence - valence, energy - energy, danceability - danceability
 # add these three together and the lowest value would mean the best song
 
-#? Take the albums made by the artists and check all of the songs in the albums to see if they will fit the requirement
+#? check all of the songs in the albums to see if they will fit the requirement
 #? if songs fit in the second function
 
 #danceability = print(user_spotify.audio_features("6rqhFgbbKwnb9MLmUQDhG6")[0]['danceability'])

@@ -1,13 +1,13 @@
 from tkinter import *
-from tkinter.simpledialog import askinteger
-#import spotify_project
-import helper
+from PIL import ImageTk, Image
+import time
 
 #* GUI TASKS
 #TODO: loop through the songs recieved from recommendations and display them through the recommendations function below
 
 screen = Tk()
 counter = 0
+count = 1
 
 def clear():
     for widget in screen.winfo_children():
@@ -15,6 +15,9 @@ def clear():
 
 def mood_to_use(mood):
     global user_mood, counter
+    file = open('mood.txt', 'w')
+    file.write(f"{mood}")
+    file.close()
     counter += 1
     user_mood = mood
     clear()
@@ -25,6 +28,9 @@ def mood_to_use(mood):
 
 def genre_to_use(genre):
     global user_genre, counter
+    file = open('genre.txt', 'w')
+    file.write(f"{genre}")
+    file.close()
     counter += 1
     user_genre = genre
     clear()
@@ -32,7 +38,6 @@ def genre_to_use(genre):
         recommendations()
     else:
         mood()
-
 
 def genre():
     clear()
@@ -74,21 +79,46 @@ def mood():
     relaxation_button.grid(row=2, column=0, padx=10, pady=20, sticky = "nsew")
     triumph_button.grid(row=2, column=2, padx=10, pady=20, sticky = "nsew")
 
+def right():
+    global count
+    count += 1
+    clear()
+    recommendations() 
+
+def left():
+    global count
+    count -= 1
+    clear()
+    recommendations() 
+
 def recommendations():
-    count = 1
-    #take in the valence, energy, and danceability from spotify_project and spit back out the recommendations
-    main_label = Label(screen, text="Top 5 Recommended Songs Based on Genre and Mood", height=5, width=50)
+    import spotify_project
+    global count
+    songs = {}
+    file = open('top5songs.txt', 'r')
+    count2 = 1
+    for line in file.readlines():
+        songs[count2] = line
+        count2 += 1
+    max_count = count2 - 1
+    artistindex = songs[count].index(',')-1
+    albumindex = songs[count].find(', ', artistindex+2)
+    songindex = songs[count].find(', ', albumindex+2)
+    cover_art = songs[count][songindex+3:len(songs[count])-3]
+    main_label = Label(screen, text=f"Recommended Songs Based on Genre and Mood", height=5, width=50)
     main_label.place(x=35, y=0)
     blank = Label(screen, text='')
     album_label = Label(screen, text='Album: ')
     artist_label = Label(screen, text='Artist: ')
     song_label = Label(screen, text='Song: ')
-    #for loop going through the 5 songs
+    left_button = Button(screen, text="<", command=left, width=5, height=1)
+    right_button = Button(screen, text=">",  command=right, width=5, height=1)
+    exit_button = Button(screen, text="Exit", width=5, height=2, command=screen.destroy)
     label = Label(screen, text=f"Recommendation #{count}", height=5, width=50)
     label.place(x=35, y=50)
-    album = Label(screen, text='UTOPIA')
-    artist = Label(screen, text='Travis Scott')
-    song = Label(screen, text='HYAENA')
+    album = Label(screen, text=songs[count][artistindex+4:albumindex-1])
+    artist = Label(screen, text=songs[count][2:artistindex])
+    song = Label(screen, text=songs[count][albumindex+3:songindex-1])
     blank.grid(row=0, column=1)
     album_label.grid(row=1, column=0, padx=(100, 10), pady=(110, 20))
     artist_label.grid(row=2, column=0, padx=(100, 10), pady=20)
@@ -96,6 +126,11 @@ def recommendations():
     album.grid(row=1, column=2, padx=(100, 10), pady=(110, 20))
     artist.grid(row=2, column=2, padx=(100, 10), pady=20)
     song.grid(row=3, column=2, padx=(100, 10), pady=20)
+    exit_button.place(x=375, y=380)
+    if count > 1:
+        left_button.place(x=100, y=300)
+    if count < max_count and count >= 1:
+        right_button.place(x=275, y=300)
 
 def main():
     screen.title("Spotify Song Recommender")
@@ -113,5 +148,3 @@ def main():
 
 
 main()
-print(user_genre)
-print(user_mood)

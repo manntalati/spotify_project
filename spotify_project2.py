@@ -1,21 +1,27 @@
 SPOTIPY_CLIENT_ID = [hidden]
 SPOTIPY_CLIENT_SECRET = [hidden]
 SPOTIPY_URI = [hidden]
-SCOPE = 'user-top-read'
 
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import helper
+import time
+import gui
 
-user_spotify = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIENT_SECRET, redirect_uri=SPOTIPY_URI, scope=SCOPE))
+#* SPOTIFY_PROJECT TASKS
+#TODO: 2. Find the top5 songs that would fit based on the valence, energy, danceability through the process below (absolute value of each variable and add together)
+#* 3. ^^also incorporate margin of error
+#* 5. this should help spit back out 5 songs that give song, artist, and album
+#* 6. when recommending songs make sure to ensure that the same one isnt already there (in the set)
 
-current_user_top_artists = user_spotify.current_user_top_artists(limit=10, offset=0)
+scope = "user-top-read"
 
-genre_file = open('genre.txt', 'r')
-mood_file = open('mood.txt', 'r')
+user_spotify = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIENT_SECRET, redirect_uri=SPOTIPY_URI, scope=scope))
 
-user_genre = genre_file.readline()
-user_mood = mood_file.readline()
+current_user_top_artists = user_spotify.current_user_top_artists(limit=20, offset=0)
+
+user_genre = gui.user_genre
+user_mood = gui.user_mood
 
 print(user_genre)
 print(user_mood)
@@ -77,37 +83,45 @@ def songs(albums=albums()):
     return songs
 
 def new_songs(songs=songs()):
-    global total_list, cover_list
-    total_list = {}
-    cover_list = {}
+    updated_songs = {}
     for artist in songs:
-        all_id_list = []
+        total_list = []
         for song in range(len(songs[artist])):
             for id in songs[artist][song]:
-                all_id_list.append(user_spotify.audio_features(songs[artist][song][id]))
-        
-        specifics = {}
-        for song2 in range(len(all_id_list)):
-            danceability = all_id_list[song2][0]['danceability']
-            energy = all_id_list[song2][0]['energy']
-            valence = all_id_list[song2][0]['valence']
-            id2 = all_id_list[song2][0]['id']
-            if abs(user_danceability - danceability) + abs(user_energy - energy) + abs(user_valence - valence) < 0.4:
-                track = user_spotify.track(id2)
-                cover_art_url = track['album']['images'][0]['url']
-                song_name = track['name']
-                album_name = track['album']['name']
-                specifics[album_name] = song_name
-                total_list[artist] = specifics
-                cover_list[artist] = cover_art_url
-    return total_list
+                dict2 = {}
+                time.sleep(30)
+                audio_features = user_spotify.audio_features(songs[artist][song][id])
+                danceability = audio_features[0]['danceability']
+                energy = audio_features[0]['energy']
+                valence = audio_features[0]['valence']
+                dict2[user_spotify.track(songs[artist][song][id])['name']] = abs(user_danceability - danceability) + abs(user_energy - energy) + abs(user_valence - valence)
+                total_list.append(dict2)
+        updated_songs[artist] = total_list
+    return updated_songs
 
-print(new_songs())
+def top5(songs=new_songs()):
+    total_list = []
+    top5_list = []
+    for artist in songs:
+        for song in range(len(songs[artist])):
+            for total in songs[artist][song]:
+                if songs[artist][song][total] > -0.4 and songs[artist][song][total] < 0.4:
+                    total_list.append(songs[artist][song][total])
 
-file = open('top5songs.txt', 'w')
-for artist in total_list:
-    for track in total_list[artist]:
-        list2 = [artist, track, total_list[artist][track], cover_list[artist]]
-        file.write(f"{list2}\n")
+    for num in range(5):
+        min_num = min(total_list)
+        top5_list.append(min_num)
+        total_list.remove(total_list.index(min_num))
 
-file.close()
+    return top5_list
+
+print(top5())
+
+#find what is closest to 0 in the updated songs dict
+# add these three together and the lowest value would mean the best song
+
+# CONSOLIDATE NEW SONGS, FIND_SONG_ID, SONGS
+
+#? use margin of error to find value and then find the top 5 values that would fit best either through iterating a list or something
+#? check all of the songs in the albums to see if they will fit the requirement
+#? if songs fit in the second function

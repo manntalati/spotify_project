@@ -1,6 +1,6 @@
-SPOTIPY_CLIENT_ID = [hidden]
-SPOTIPY_CLIENT_SECRET = [hidden]
-SPOTIPY_URI = [hidden]
+SPOTIPY_CLIENT_ID = '482ddfd255024d6ea41fd723acf0f6be'
+SPOTIPY_CLIENT_SECRET = '47dee8b88d2c42af93fb03a03f82193d'
+SPOTIPY_URI = 'http://127.0.0.1:9090'
 
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth

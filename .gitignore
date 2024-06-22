@@ -2,3 +2,5 @@
 secrets.txt
 .cache
 __pycache__/spotify_project.cpython-312.pyc
+test.py
+spotify_project2.py

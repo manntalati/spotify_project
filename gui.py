@@ -1,9 +1,7 @@
 from tkinter import *
-from PIL import ImageTk, Image
+import urllib.request 
+from PIL import Image, ImageTk
 import time
-
-#* GUI TASKS
-#TODO: loop through the songs recieved from recommendations and display them through the recommendations function below
 
 screen = Tk()
 counter = 0
@@ -95,42 +93,48 @@ def recommendations():
     import spotify_project
     global count
     songs = {}
-    file = open('top5songs.txt', 'r')
+    file = open('topsongs.txt', 'r')
     count2 = 1
     for line in file.readlines():
         songs[count2] = line
         count2 += 1
-    max_count = count2 - 1
-    artistindex = songs[count].index(',')-1
-    albumindex = songs[count].find(', ', artistindex+2)
-    songindex = songs[count].find(', ', albumindex+2)
-    cover_art = songs[count][songindex+3:len(songs[count])-3]
-    main_label = Label(screen, text=f"Recommended Songs Based on Genre and Mood", height=5, width=50)
-    main_label.place(x=35, y=0)
-    blank = Label(screen, text='')
-    album_label = Label(screen, text='Album: ')
-    artist_label = Label(screen, text='Artist: ')
-    song_label = Label(screen, text='Song: ')
-    left_button = Button(screen, text="<", command=left, width=5, height=1)
-    right_button = Button(screen, text=">",  command=right, width=5, height=1)
     exit_button = Button(screen, text="Exit", width=5, height=2, command=screen.destroy)
-    label = Label(screen, text=f"Recommendation #{count}", height=5, width=50)
-    label.place(x=35, y=50)
-    album = Label(screen, text=songs[count][artistindex+4:albumindex-1])
-    artist = Label(screen, text=songs[count][2:artistindex])
-    song = Label(screen, text=songs[count][albumindex+3:songindex-1])
-    blank.grid(row=0, column=1)
-    album_label.grid(row=1, column=0, padx=(100, 10), pady=(110, 20))
-    artist_label.grid(row=2, column=0, padx=(100, 10), pady=20)
-    song_label.grid(row=3, column=0, padx=(100, 10), pady=20)
-    album.grid(row=1, column=2, padx=(100, 10), pady=(110, 20))
-    artist.grid(row=2, column=2, padx=(100, 10), pady=20)
-    song.grid(row=3, column=2, padx=(100, 10), pady=20)
     exit_button.place(x=375, y=380)
-    if count > 1:
-        left_button.place(x=100, y=300)
-    if count < max_count and count >= 1:
-        right_button.place(x=275, y=300)
+    if len(songs) == 0:
+        main_label = Label(screen, text=f"Sorry No Recommended Songs Found. Please Try Other Categories.", height=5, width=50)
+        main_label.place(x=35, y=150)
+        retry_button = Button(screen, text="Retry", width=5, height=2, command=lambda:[screen.destroy, main])
+        retry_button.place(x=0, y=380)
+    else:
+        max_count = count2 - 1
+        artistindex = songs[count].index(',')-1
+        albumindex = songs[count].find(', ', artistindex+2)
+        songindex = songs[count].find(', ', albumindex+2)
+        cover_art = songs[count][songindex+3:len(songs[count])-3]
+        main_label = Label(screen, text=f"Recommended Songs Based on Genre and Mood", height=5, width=50)
+        main_label.place(x=35, y=0)
+        blank = Label(screen, text='')
+        album_label = Label(screen, text='Album: ')
+        artist_label = Label(screen, text='Artist: ')
+        song_label = Label(screen, text='Song: ')
+        left_button = Button(screen, text="<", command=left, width=5, height=1)
+        right_button = Button(screen, text=">",  command=right, width=5, height=1)
+        label = Label(screen, text=f"Recommendation #{count}", height=5, width=50)
+        label.place(x=35, y=50)
+        album = Label(screen, text=songs[count][artistindex+4:albumindex-1])
+        artist = Label(screen, text=songs[count][2:artistindex])
+        song = Label(screen, text=songs[count][albumindex+3:songindex-1])
+        blank.grid(row=0, column=1)
+        album_label.grid(row=1, column=0, padx=(100, 10), pady=(110, 20))
+        artist_label.grid(row=2, column=0, padx=(100, 10), pady=20)
+        song_label.grid(row=3, column=0, padx=(100, 10), pady=20)
+        album.grid(row=1, column=2, padx=(40, 20), pady=(110, 20), sticky = "nsew")
+        artist.grid(row=2, column=2, padx=(40, 20), pady=20, sticky = "nsew")
+        song.grid(row=3, column=2, padx=(40, 20), pady=20, sticky = "nsew")
+        if count > 1:
+            left_button.place(x=100, y=300)
+        if count < max_count and count >= 1:
+            right_button.place(x=275, y=300)
 
 def main():
     screen.title("Spotify Song Recommender")

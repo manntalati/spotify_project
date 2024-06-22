@@ -17,9 +17,6 @@ mood_file = open('mood.txt', 'r')
 user_genre = genre_file.readline()
 user_mood = mood_file.readline()
 
-print(user_genre)
-print(user_mood)
-
 user_valence = helper.user_valence(user_mood)
 user_danceability = helper.user_danceability(user_mood)
 user_energy = helper.user_energy(user_mood)
@@ -87,6 +84,7 @@ def new_songs(songs=songs()):
                 all_id_list.append(user_spotify.audio_features(songs[artist][song][id]))
         
         specifics = {}
+        cover_specifics = {}
         for song2 in range(len(all_id_list)):
             danceability = all_id_list[song2][0]['danceability']
             energy = all_id_list[song2][0]['energy']
@@ -99,15 +97,16 @@ def new_songs(songs=songs()):
                 album_name = track['album']['name']
                 specifics[album_name] = song_name
                 total_list[artist] = specifics
-                cover_list[artist] = cover_art_url
+                cover_specifics[song_name] = cover_art_url
+                cover_list[artist] = cover_specifics
     return total_list
 
-print(new_songs())
+new_songs()
 
-file = open('top5songs.txt', 'w')
+file = open('topsongs.txt', 'w')
 for artist in total_list:
     for track in total_list[artist]:
-        list2 = [artist, track, total_list[artist][track], cover_list[artist]]
+        list2 = [artist, track, total_list[artist][track], cover_list[artist][total_list[artist][track]]]
         file.write(f"{list2}\n")
 
 file.close()

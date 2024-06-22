@@ -1,0 +1,4 @@
+['Steve Miller Band', 'Let Your Hair Down (Special Edition)', "Tell Me What's The Reason", 'https://i.scdn.co/image/ab67616d0000b2730488855c4185ab77b1721458']
+['Steve Miller Band', 'Let Your Hair Down', 'Sweet Home Chicago', 'https://i.scdn.co/image/ab67616d0000b273da60c861084a6de1b444d3d4']
+['Steve Miller Band', 'Bingo! (Special Edition)', 'Ooh Poo Pah Doo', 'https://i.scdn.co/image/ab67616d0000b2733a477448aaaffd200a21b6a5']
+['Steve Miller Band', 'Bingo!', 'Ooh Poo Pah Doo', 'https://i.scdn.co/image/ab67616d0000b2733a477448aaaffd200a21b6a5']
